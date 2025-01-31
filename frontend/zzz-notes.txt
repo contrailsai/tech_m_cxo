@@ -1,0 +1,14 @@
+things to do before deploying
+-> change cors permissions of S3 bucket to allow the website url 
+(currently only localhost:3000 is allowed)
+
+
+
+-> update POI Server for crawling to only take the link 
+-> update the process-pending to send poi-id in sqs iwth media-id  (done)
+-> update the polling to get both poi-id and media-id from sqs
+   (poi_id , results saved in media)
+
+urls: 
+https://conspatriots2024.com/wp-content/uploads/2024/04/0-02-05-aca301a44b073ea87338efcd18aa41f18ebd53e8462b780976412fc70a3a28d2_1c6dbb100c4956.mp4
+https://xtradgpt.online/

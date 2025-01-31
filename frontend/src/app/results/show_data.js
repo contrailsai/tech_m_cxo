@@ -1,8 +1,7 @@
 "use client"
 import Link from "next/link";
 
-const Show_data = ({ data }) => {
-    console.log(data);
+const Show_data = ({data}) => {
 
     return (
         <div className=''>
@@ -58,7 +57,7 @@ const Show_data = ({ data }) => {
 
                                 return (
                                     <>
-                                        <div className="pl-6 pr-6 border-b-2 pb-3" >
+                                        <div key={idx} className="pl-6 pr-6 border-b-2 pb-3" >
                                             <div className="  py-2  flex items-center ">
                                                 <span className=" px-2.5">
                                                     {idx + 1}.
@@ -68,8 +67,8 @@ const Show_data = ({ data }) => {
                                                     <span className='col-span-6 overflow-x-auto mr-4'>
                                                         {name ? name : "---"}
                                                     </span>
-                                                    <span className={`rounded-full ${val.prediction ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
-                                                        {(val.prediction ? "Real" : "Fake")}
+                                                    <span className={`rounded-full ${val.prediction==='real' ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
+                                                        {val.prediction }
                                                     </span>
                                                     {/* UPLAOD TYPE */}
                                                     <span className=''>
@@ -97,15 +96,15 @@ const Show_data = ({ data }) => {
 
                                                 <div className=" flex flex-col ">
                                                     {
-                                                        val.results.map((clip_val, idx)=>{
+                                                        val.results.map((clip_val, clip_idx)=>{
                                                             return(
-                                                                <div className=" pl-[54px] grid grid-cols-12 gap-3 w-full py-1 bg-slate-100 rounded-full">
+                                                                <div key={clip_idx} className=" pl-[54px] grid grid-cols-12 gap-3 w-full py-1 bg-slate-100 rounded-full">
                                                                     {/* NAME */}
                                                                     <span className='col-span-6 overflow-x-auto mr-4'>
                                                                         {`clip-${idx+1}`}
                                                                     </span>
-                                                                    <span className={`rounded-full ${clip_val.final_clip_result ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
-                                                                        {(clip_val.final_clip_result ? "Real" : "Fake")}
+                                                                    <span className={`rounded-full ${clip_val.final_clip_result==='real' ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
+                                                                        {clip_val.final_clip_result}
                                                                     </span>
                                                                 </div>
                                                             )
@@ -126,7 +125,7 @@ const Show_data = ({ data }) => {
                             <div className=' w-full text-center text-2xl font-light pt-16 '>
                                 No Cases To Show
                             </div>
-                            <Link href={'/fact-checker'} className=' mx-auto mt-10 bg-primary w-fit text-slate-200 hover:text-white  rounded-full px-4 py-2 cursor-pointer hover:shadow transition-all '>
+                            <Link href={'/crawl-sites'} className=' mx-auto mt-10 bg-primary w-fit text-slate-200 hover:text-white  rounded-full px-4 py-2 cursor-pointer hover:shadow transition-all '>
                                 Create a new case
                             </Link>
                         </>

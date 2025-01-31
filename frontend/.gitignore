@@ -34,3 +34,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# zzz-notes.txt
+samle.json
+smaple2.json
+architecture.excalidraw
