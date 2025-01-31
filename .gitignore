@@ -1,0 +1,7 @@
+Include
+Lib
+Scripts
+videos
+.env
+env_data.py
+__pycache__
