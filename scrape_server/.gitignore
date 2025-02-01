@@ -1,0 +1,9 @@
+env.py
+poetry.lock
+temp_video.mp4
+
+# Ignore Python bytecode files and __pycache__ directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
