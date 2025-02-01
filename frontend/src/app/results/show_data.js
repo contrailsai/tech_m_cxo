@@ -70,7 +70,7 @@ const Show_data = ({data}) => {
                                                     <span className={`rounded-full ${val.prediction==='real' ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
                                                         {val.prediction }
                                                     </span>
-                                                    {/* UPLAOD TYPE */}
+                                                    {/* UPLOAD TYPE */}
                                                     <span className=''>
                                                         {val.contentType}
                                                     </span>
@@ -96,15 +96,16 @@ const Show_data = ({data}) => {
 
                                                 <div className=" flex flex-col ">
                                                     {
-                                                        val.results.map((clip_val, clip_idx)=>{
+                                                        val.results.map((model_result, model_idx)=>{
                                                             return(
-                                                                <div key={clip_idx} className=" pl-[54px] grid grid-cols-12 gap-3 w-full py-1 bg-slate-100 rounded-full">
+                                                                <div key={model_idx} className=" pl-[54px] grid grid-cols-12 gap-3 w-full py-1 bg-slate-100 rounded-full">
                                                                     {/* NAME */}
                                                                     <span className='col-span-6 overflow-x-auto mr-4'>
-                                                                        {`clip-${idx+1}`}
+                                                                        {/* {`clip-${idx+1}`} */}
+                                                                        {model_result.model}
                                                                     </span>
-                                                                    <span className={`rounded-full ${clip_val.final_clip_result==='real' ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
-                                                                        {clip_val.final_clip_result}
+                                                                    <span className={`rounded-full ${model_result.result==='real' ? "bg-green-200" : "bg-red-200"} w-fit h-fit px-4 py-0.5`}>
+                                                                        {model_result.score}
                                                                     </span>
                                                                 </div>
                                                             )

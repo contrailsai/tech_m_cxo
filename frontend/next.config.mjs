@@ -4,7 +4,7 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'https',
-          hostname: 'poi-demo.s3.ap-south-1.amazonaws.com',
+          hostname: 'cxo-demo.s3.ap-south-1.amazonaws.com',
         },
       ],
     },

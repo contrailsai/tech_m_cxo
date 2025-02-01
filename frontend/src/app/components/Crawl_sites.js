@@ -148,7 +148,7 @@ const Crawl_sites = ({ poi_id }) => {
         };
         // console.log(options)
         try {
-            let response = await fetch(`https://api.contrails.ai/crawl-videos`, options);
+            let response = await fetch(`https://api.contrails.ai/crawl`, options);
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
@@ -164,8 +164,8 @@ const Crawl_sites = ({ poi_id }) => {
             result["source_url"] = link;
 
             console.log(result)
-            if (result["media_mongo_id"] != undefined)
-                set_mongodb_ids(prevResults => [...prevResults, ...result["media_mongo_id"]])
+            if (result["media_mongo_ids"] != undefined)
+                set_mongodb_ids(prevResults => [...prevResults, ...result["media_mongo_ids"]])
             set_results(prevResults => [...prevResults, result]);
         } catch (error) {
             console.error("Fetch error:", error);
@@ -232,7 +232,8 @@ const Crawl_sites = ({ poi_id }) => {
                 </form>
 
                 <ResponsiveTable table_data={results} />
-
+                {typeof(poi_id)}
+                {mongodb_ids.length}
                 {/* START ANALYSIS */}
                 <div
                     onClick={() => {
