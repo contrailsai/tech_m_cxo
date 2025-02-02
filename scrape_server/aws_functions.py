@@ -23,8 +23,15 @@ async def s3_uploader(s3_key: str, video_src: str) -> None:
                         Key=s3_key,
                         ExtraArgs={'ContentType': 'video/mp4'}
                     )
-
     print("FILE UPLOADED")
+
+async def s3_downloader(s3_key: str, local_path: str) -> None:
+    bucket_name = env.aws_s3_bucket_name
+
+    session = aioboto3.Session(aws_access_key_id=env.aws_access_key_id, aws_secret_access_key=env.aws_access_key_secret)
+    async with session.client('s3', region_name=env.region_name) as s3_client:
+        await s3_client.download_file(bucket_name, s3_key, local_path)
+    print("FILE DOWNLOADED")
 
 async def sqs_sender(message_body: str) -> str:
     queue_url = env.aws_sqs_queue_url

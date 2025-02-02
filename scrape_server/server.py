@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from contextlib import asynccontextmanager
@@ -14,6 +14,8 @@ from datetime import datetime
 import os
 import re
 from aws_functions import s3_uploader, sqs_sender
+from process_files import file_processor
+import subprocess
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -209,13 +211,16 @@ async def crawl(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-
 #----- LINK BASED
+
+def run_media_files_processing_task(poi_id, media_ids):
+    subprocess.Popen(["python", "process_files.py", poi_id, *media_ids])
+
 @app.post("/process-pending")
-async def crawl(request: Request):
-    """ SEND THE MEDIA TO SQS WITH THE REQUESTED POI"""
+async def crawl(background_tasks: BackgroundTasks, request: Request):
+    # """ SEND THE MEDIA TO SQS WITH THE REQUESTED POI"""
     try:
-        # get the link from json
+         # get the link from json
         body = await request.json()
         media_ids = body.get('media_ids', None)   #['id-1', 'id-2', 'id-3']
         poi_id = body.get('poi_id', None)   # pid-1
@@ -223,22 +228,25 @@ async def crawl(request: Request):
         if media_ids == None or poi_id == None:    
             return Response(status_code=400, content=json.dumps({"Details": "Invalid media_id or POi ID"}), media_type="json")
 
-        updated_ids = []
-        for _id in media_ids:
-            # Send _id to SQS queue
-            # MESSAGE = Media_ID|POI_ID 
-            await sqs_sender(message_body=f"{_id}|{poi_id}")
-            print(f"Sent message with _id: {_id} to SQS queue.")
+    #     updated_ids = []
+    #     for _id in media_ids:
+    #         # Send _id to SQS queue
+    #         # MESSAGE = Media_ID|POI_ID 
+    #         await sqs_sender(message_body=f"{_id}|{poi_id}")
+    #         print(f"Sent message with _id: {_id} to SQS queue.")
 
-            # Update the document's processing_status to "in-queue"
-            from bson.objectid import ObjectId
-            count = await app.state.mongodb.update_document({"_id": ObjectId(_id)}, {"processing_status": "in-queue"})
-            updated_ids.append(_id)
+    #         # Update the document's processing_status to "in-queue"
+    #         from bson.objectid import ObjectId
+    #         count = await app.state.mongodb.update_document({"_id": ObjectId(_id)}, {"processing_status": "in-queue"})
+    #         updated_ids.append(_id)
+
+        # await file_processor(poi_id, media_ids, app.state.mongodb)
+        background_tasks.add_task(run_media_files_processing_task, poi_id, media_ids)
 
         return Response(status_code=201, content=json.dumps({
-            "message": "Documents updated and sent to queue for processing.",
-            "updated_ids": updated_ids,
-            "count": len(updated_ids),
+            "message": "Documents sent for processing.",
+            "updated_ids": media_ids,
+            "count": len(media_ids),
         }), media_type="json")
     except Exception as e:  
         raise HTTPException(status_code=500, detail=str(e))

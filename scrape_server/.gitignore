@@ -1,7 +1,7 @@
 env.py
 poetry.lock
 temp_video.mp4
-
+tmp
 # Ignore Python bytecode files and __pycache__ directories
 __pycache__/
 *.pyc
