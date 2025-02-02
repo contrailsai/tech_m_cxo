@@ -10,8 +10,7 @@ export default function Home() {
   const [poi_id, set_poi_id] = useState(null);
 
   return (
-    <div className=" px-16 pt-5 flex gap-4">
-
+    <div className=" pl-8 divide-x-[1px] divide-primary flex gap-4">
         <Show_prev_POIs poi_id={poi_id} set_poi_id={set_poi_id} />
         <Crawl_sites poi_id={poi_id} /> 
     </div>

@@ -88,16 +88,16 @@ export default function Data_table({ delete_media, data }) {
         }
     }
     return (
-        <div className="container mx-auto p-4">
-            <div className="bg-primary rounded-full py-4 mb-4 hidden md:block px-8">
-                <div className="grid grid-cols-12 gap-2 text-slate-200 text-sm">
+        <div className="mx-auto px-8 w-full">
+            <div className="bg-primary py-4 mb-4 hidden md:block px-8">
+                <div className="grid grid-cols-12 gap-2 text-white text-sm">
                     <div className="col-span-1">S.No</div>
                     <div className="col-span-2">Filename</div>
                     <div className="col-span-1">Status</div>
                     <div className="col-span-1">Prediction</div>
                     <div className="col-span-3">Source URL</div>
                     <div className="col-span-3">Created At</div>
-                    <div className="col-span-1">Actions</div>
+                    <div className="col-span-1">Action</div>
                 </div>
             </div>
             {data.map((item, index) => {
@@ -107,16 +107,16 @@ export default function Data_table({ delete_media, data }) {
                 return (
                     <div key={index} className=" border-b ">
                         {/* ROW DETAILS */}
-                        <div className="bg-white hover:bg-slate-100 rounded-full px-8 py-6 transition-all ">
+                        <div className="bg-white hover:bg-primary/5  px-8 py-6 transition-all ">
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
                                 <div className="md:col-span-1 font-semibold text-center md:text-left">
-                                    <span className="inline-block bg-slate-200 rounded-full px-3 py-1 text-xs md:text-sm">
+                                    <span className="inline-block bg-white rounded-full px-3 py-1 text-xs md:text-sm">
                                         {index + 1}
                                     </span>
                                 </div>
                                 <div className="md:col-span-2 truncate">{item.file_name}</div>
                                 <div className="md:col-span-1 ">
-                                    <span className="bg-blue-100 bg-primary/20 px-3 py-1 rounded-full text-xs">
+                                    <span className=" bg-primary/20 px-3 py-1 text-xs">
                                         {item.processing_status}
                                     </span>
                                 </div>
@@ -129,7 +129,7 @@ export default function Data_table({ delete_media, data }) {
                                                 </span>)
                                             :
                                             (
-                                                <span className={`px-4 py-1 rounded-full text-xs ${(item.prediction === 'real' || item.prediction === 'no poi') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                <span className={`px-4 py-1 text-xs ${(item.prediction === 'real' || item.prediction === 'no poi') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                     {item.prediction}
                                                 </span>
                                             )
@@ -140,7 +140,7 @@ export default function Data_table({ delete_media, data }) {
                                 <div className="md:col-span-1 px-3">
                                     <button
                                         onClick={() => toggleDropdown(index)}
-                                        className="bg-slate-200 hover:bg-slate-300 rounded-full p-2 focus:outline-none"
+                                        className=" bg-primary/20 rounded-full p-2 focus:outline-none"
                                         aria-label={openIndex === index ? "Close details" : "Open details"}
                                     >
                                         <div className={` ${openIndex === index ? "rotate-180" : "  "} transition-all `} >
@@ -154,7 +154,7 @@ export default function Data_table({ delete_media, data }) {
                         </div>
                         {/* DROP DOWN */}
                         {openIndex === index && (
-                            <div className="mt-4 p-4  rounded-3xl shadow-inner shadow-primary flex w-full justify-between">
+                            <div className=" p-4 border-b-4 border-x-2 border-t border-primary flex w-full justify-between">
                                 {/* POI DETAILS */}
                                 {
                                     poi !== null ?
@@ -175,18 +175,18 @@ export default function Data_table({ delete_media, data }) {
                                 }
 
                                 {/* for video  */}
-                                <div className=' w-full gap-4 flex flex-col justify-center items-center overflow-hidden rounded-3xl'>
+                                <div className=' w-full flex flex-col justify-evenly gap-2 items-center overflow-hidden'>
                                     <video
                                         src={item["view_url"]}
                                         controls
-                                        className='max-h-72 rounded-xl w-full'
+                                        className='max-h-72 w-full'
                                     />
 
-                                    <div onClick={() => { handle_analysis_deletion() }} className=' group w-fit bg-red-200 hover:bg-red-300 px-5  p-2 rounded-full cursor-pointer flex items-center group-hover:gap-2 transition-all '>
+                                    <div onClick={() => { handle_analysis_deletion() }} className=' w-fit bg-red-200 hover:bg-red-300 px-5  p-2 cursor-pointer flex items-center gap-2 transition-all '>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                         </svg>
-                                        <span className=' text-sm group-hover:w-28 w-0 h-5 overflow-hidden transition-all text-center'>
+                                        <span className=' text-sm text-center'>
                                             Delete Analysis
                                         </span>
                                     </div>
@@ -206,7 +206,7 @@ export default function Data_table({ delete_media, data }) {
                                                 (
                                                     <>
                                                         {/* for Clips data */}
-                                                        <div className=' w-[450px] border px-2 py-2 rounded-3xl overflow-hidden '>
+                                                        <div className=' w-[450px] border border-primary/30 px-2 py-2 overflow-hidden '>
                                                             {
                                                                 item.results.length === 0 ?
                                                                     <div className='w-full text-xl text-center py-4 '>
@@ -224,7 +224,7 @@ export default function Data_table({ delete_media, data }) {
                                                             <div className=" divide-y max-h-80 overflow-y-auto  ">
                                                                 {
                                                                     item.results.map((model, model_index) => (
-                                                                        <div key={model_index} className="bg-white py-4 px-4 hover:bg-slate-50 rounded-xl ">
+                                                                        <div key={model_index} className="bg-white py-4 px-4 hover:bg-primary/5 ">
                                                                             <div className="flex justify-start">
                                                                                 <div className=" w-full ">
                                                                                     {model.model_name}

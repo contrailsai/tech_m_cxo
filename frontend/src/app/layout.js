@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
         className={outfit.className}
       >
         <Navbar />
-        <div className=" pt-14 h-[94vh] overflow-y-auto " >
+        <div className="h-[94vh] pt-28 overflow-y-auto " >
           {children}
         </div>
         <Footer />

@@ -13,7 +13,7 @@ const Page = async ()=>{
     }   
       
     return (
-        <div className=" px-12">
+        <div className=" w-full">
             {/* <Show_data data={data} /> */}
             <Data_table delete_media={delete_media} data={data} />
         </div>

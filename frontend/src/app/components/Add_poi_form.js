@@ -130,14 +130,14 @@ export default function POI_FORM({ set_show_poi_form }) {
                 </div>
             </div>
             <form onSubmit={handle_submit} className="space-y-6">
-                <div className=' flex items-center gap-5'>
+                <div className=' flex items-center gap-5 h-20'>
                     <label htmlFor="name">Name</label>
                     <input
                         id="name"
                         name="name"
                         value={name}
-                        placeholder='Name of the PoI..'
-                        className='outline-gray-400 px-3 py-2 border-2 rounded-lg w-full'
+                        placeholder='Name of the POI'
+                        className=' px-3 py-2 focus:py-1 border-b-2 border-primary outline-none w-full transition-all '
                         onChange={(e) => setName(e.target.value)}
                         required
                     />
@@ -146,7 +146,7 @@ export default function POI_FORM({ set_show_poi_form }) {
                 <div>
                     <label htmlFor="images">Images</label>
                     <div
-                        className={`p-6 mt-2 group border-2 border-dashed rounded-md cursor-pointer ${isDragActive ? 'border-primary' : 'border-gray-300'
+                        className={`p-6 mt-2 group border-2 border-dashed cursor-pointer ${isDragActive ? 'border-primary' : 'border-gray-300'
                             }`}
                         onDragEnter={handleDragEnter}
                         onDragLeave={handleDragLeave}
@@ -206,7 +206,7 @@ export default function POI_FORM({ set_show_poi_form }) {
                     ))}
                 </div>
 
-                <button type="submit" className="w-full bg-primary text-slate-200 py-2 rounded-full hover:opacity-95 flex items-center justify-center gap-5">
+                <button type="submit" className="w-full border border-primary text-primary hover:text-white bg-white hover:bg-primary py-2 flex items-center justify-center gap-5 transition-all">
                     <span>
                         Save
                     </span>
