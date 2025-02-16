@@ -16,6 +16,7 @@ import re
 from aws_functions import s3_uploader, sqs_sender, sns_notif
 from process_files import file_processor
 import subprocess
+import env
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -198,7 +199,7 @@ async def crawl(request: Request):
         async with aiohttp.ClientSession() as session:
             payload = {"url": link}
             headers = {"Accept": "application/json", "Content-Type": "application/json"}
-            async with session.post("http://localhost:9000/", json=payload, headers=headers) as response:
+            async with session.post(env.cobalt_api_url, json=payload, headers=headers) as response:
                 print(response, response.status, await response.json())
                 # Check if the request was successful
                 if response.status == 200:
