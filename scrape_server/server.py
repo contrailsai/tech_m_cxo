@@ -196,18 +196,20 @@ async def crawl(request: Request):
 
         got_url = False
         urls = []
-        async with aiohttp.ClientSession() as session:
-            payload = {"url": link}
-            headers = {"Accept": "application/json", "Content-Type": "application/json"}
-            async with session.post(env.cobalt_api_url, json=payload, headers=headers) as response:
-                print(response, response.status, await response.json())
-                # Check if the request was successful
-                if response.status == 200:
-                    result = await response.json()
-                    got_url = True
-                    urls.append(result["url"])
-                else:
-                    got_url = False
+        if env.cobalt_works:
+            async with aiohttp.ClientSession() as session:
+                # send request to cobalt to try getting video (works for social media sites)
+                payload = {"url": link}
+                headers = {"Accept": "application/json", "Content-Type": "application/json"}
+                async with session.post(env.cobalt_api_url, json=payload, headers=headers) as response:
+                    print(response, response.status, await response.json())
+                    # Check if the request was successful
+                    if response.status == 200:
+                        result = await response.json()
+                        got_url = True
+                        urls.append(result["url"])
+                    else:
+                        got_url = False
 
         if not got_url:
             async with Scraper(navigation_timeout=60000, wait_for='domcontentloaded') as scraper:
