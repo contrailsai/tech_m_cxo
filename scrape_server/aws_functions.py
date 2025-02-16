@@ -48,3 +48,20 @@ async def sqs_sender(message_body: str) -> str:
 
     print(f"Message sent with ID: {response['MessageId']}")
     return response['MessageId']
+
+async def sns_notif(msg: str):
+    sns_topic_arn = env.aws_sns_topic_arn
+    
+    session = aioboto3.Session(
+        aws_access_key_id=env.aws_access_key_id,
+        aws_secret_access_key=env.aws_access_key_secret
+    )
+    
+    async with session.client('sns', region_name=env.region_name) as sns_client:
+        response = await sns_client.publish(
+            TopicArn=sns_topic_arn,
+            Message=msg
+        )
+    
+    print(f"Notification sent with Message ID: {response['MessageId']}")
+    return response['MessageId']

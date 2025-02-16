@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 import os
 import re
-from aws_functions import s3_uploader, sqs_sender
+from aws_functions import s3_uploader, sqs_sender, sns_notif
 from process_files import file_processor
 import subprocess
 
@@ -24,10 +24,8 @@ async def lifespan(app: FastAPI):
     col_name = "media"
     app.state.mongodb = MongoDBClient(db_name, col_name)
     await app.state.mongodb.connect()
-    # app.state.scraper = Scraper()
     yield
     # Clean up
-    # await app.state.scraper.close()
     await app.state.mongodb.close()
     
 # Create FastAPI app
@@ -132,7 +130,15 @@ def create_link_string(link):
     elif (len(items)>=1):
         return "_".join(items[0].split('.'))
 
-async def save_video(link, video_src):
+def get_filename(video_src):
+    try:
+        filename = os.path.basename(video_src)
+        if len(filename) == 0:
+            raise ValueError("error: no filename")
+    except Exception:
+        filename = "saved_mediafile.mp4"
+
+async def save_video(link, video_src, filename):
     # MongoDB -> Create document in Media for this file
     video_metadata = {
         'source_url': link,
@@ -148,13 +154,6 @@ async def save_video(link, video_src):
     link_str = create_link_string(link)
     s3_key = f"{link_str}/raw/{mongodb_id}.mp4"
     await s3_uploader(s3_key=s3_key, video_src=video_src)
-
-    try:
-        filename = os.path.basename(video_src)
-        if len(filename) == 0:
-            raise ValueError("error: no filename")
-    except Exception:
-        filename = "saved_mediafile.mp4"
 
     # update the mongo
     from bson.objectid import ObjectId
@@ -194,12 +193,28 @@ async def crawl(request: Request):
         if not is_valid_url(link):
             return Response(status_code=400, content=json.dumps({"detail": "invalid Link provided"}), media_type="json")
 
-        async with Scraper(navigation_timeout=60000, wait_for='domcontentloaded') as scraper:
-            urls = await scraper.scrape_page(link)
+        got_url = False
+        urls = []
+        async with aiohttp.ClientSession() as session:
+            payload = {"url": link}
+            headers = {"Accept": "application/json", "Content-Type": "application/json"}
+            async with session.post("http://localhost:9000/", json=payload, headers=headers) as response:
+                print(response, response.status, await response.json())
+                # Check if the request was successful
+                if response.status == 200:
+                    result = await response.json()
+                    got_url = True
+                    urls.append(result["url"])
+                else:
+                    got_url = False
+
+        if not got_url:
+            async with Scraper(navigation_timeout=60000, wait_for='domcontentloaded') as scraper:
+                urls = await scraper.scrape_page(link)
 
         mongo_ids = []        
         for url in urls:
-            mongo_ids.append( await save_video(link, url) )
+            mongo_ids.append( await save_video(link, url, result.get("filename", get_filename(url))) )
 
         return Response(status_code=201, content=json.dumps({
             'video_sources': urls,
@@ -217,7 +232,7 @@ def run_media_files_processing_task(poi_id, media_ids):
     subprocess.Popen(["python", "process_files.py", poi_id, *media_ids])
 
 @app.post("/process-pending")
-async def crawl(background_tasks: BackgroundTasks, request: Request):
+async def process_pending(request: Request):
     # """ SEND THE MEDIA TO SQS WITH THE REQUESTED POI"""
     try:
          # get the link from json
@@ -228,20 +243,25 @@ async def crawl(background_tasks: BackgroundTasks, request: Request):
         if media_ids == None or poi_id == None:    
             return Response(status_code=400, content=json.dumps({"Details": "Invalid media_id or POi ID"}), media_type="json")
 
-    #     updated_ids = []
-    #     for _id in media_ids:
-    #         # Send _id to SQS queue
-    #         # MESSAGE = Media_ID|POI_ID 
-    #         await sqs_sender(message_body=f"{_id}|{poi_id}")
-    #         print(f"Sent message with _id: {_id} to SQS queue.")
-
-    #         # Update the document's processing_status to "in-queue"
-    #         from bson.objectid import ObjectId
-    #         count = await app.state.mongodb.update_document({"_id": ObjectId(_id)}, {"processing_status": "in-queue"})
-    #         updated_ids.append(_id)
-
-        # await file_processor(poi_id, media_ids, app.state.mongodb)
-        background_tasks.add_task(run_media_files_processing_task, poi_id, media_ids)
+        print("got media ids and poi id")
+        for media_id in media_ids:
+            # 1. save poi id to them
+            from bson.objectid import ObjectId
+            if not ObjectId.is_valid(media_id):
+                raise Exception(f"invalid object ID: {media_id}")
+            await app.state.mongodb.update_document(
+                {"_id": ObjectId(media_id)}, 
+                {
+                    "poi_id": poi_id,
+                }
+            )
+            # 2. send the sqs message
+            await sqs_sender(message_body=json.dumps({
+                "task_id": media_id,
+                "application": "beacon"
+            }))
+            # 3. send the sns message
+            await sns_notif(msg="start instance for poi media execution")
 
         return Response(status_code=201, content=json.dumps({
             "message": "Documents sent for processing.",
@@ -249,6 +269,8 @@ async def crawl(background_tasks: BackgroundTasks, request: Request):
             "count": len(media_ids),
         }), media_type="json")
     except Exception as e:  
+        import traceback
+        traceback.print_exception(e)
         raise HTTPException(status_code=500, detail=str(e))
     
 
