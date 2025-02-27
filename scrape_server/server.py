@@ -277,6 +277,41 @@ async def process_pending(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
     
 
+@app.post("/get_download_link")
+async def get_download_link(request: Request):
+    try:
+        # get the link from json
+        body = await request.json()
+        link = body.get('link', None)
+        if link == None:
+            raise Exception("invalid link")
+
+        if env.cobalt_works:
+            async with aiohttp.ClientSession() as session:
+                # send request to cobalt to try getting video (works for social media sites)
+                payload = {"url": link}
+                headers = {"Accept": "application/json", "Content-Type": "application/json"}
+                async with session.post(env.cobalt_api_url, json=payload, headers=headers) as response:
+                    print(response, response.status, await response.json())
+                    # Check if the request was successful
+                    if response.status == 200:
+                        result = await response.json()
+                        return Response(status_code=200, content=json.dumps(result), media_type="json")
+    
+        async with Scraper(navigation_timeout=60000, wait_for='domcontentloaded') as scraper:
+            urls = await scraper.scrape_page(link)
+        
+        return Response(status_code=200, content=json.dumps({
+            'manual_scrape': True,
+            'urls': urls,
+        }), media_type="json")
+
+    except Exception as e:  
+        import traceback
+        traceback.print_exception(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000)
